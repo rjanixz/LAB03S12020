@@ -1,0 +1,205 @@
+options {
+  IGNORE_CASE = true;
+  STATIC = false;
+}
+
+PARSER_BEGIN(Gramatica)
+
+package lab03;
+
+import lab03.instr.*;
+import lab03.exp.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class Gramatica {
+
+    List<Instruccion> instrucciones = new ArrayList();
+}
+PARSER_END(Gramatica)
+
+/** Lexico */
+SKIP : {
+      " "
+    | "\t"
+    | "\r"
+    | "\n"
+}
+
+TOKEN : {
+      <NUM: (   ["0"-"9"])+ >
+    | <VAR: "var">
+    | <IMPRIMIR: "imprimir">
+    | <ID: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] | "_")* >
+    | <PCOMA: ";">
+    | <PARENI: "(">
+    | <PAREND: ")">
+    | <MAS: "+">
+    | <MENOS: "-">
+    | <POR: "*">
+    | <DIV: "/">
+    | <EQ: "=">
+}
+/** Fin Lexico */
+
+void start() :
+{}
+{
+    (instruccion())+ <EOF>
+}
+
+void instruccion() :
+{ Instruccion instr; }
+{
+    (
+        instr = definicion()
+        |
+        instr = asignacion()
+        |
+        instr = imprimir()
+    )
+    {
+        instrucciones.add(instr);
+    }
+}
+
+Definicion definicion() :
+{
+    String id;
+}
+{
+    <VAR> <ID> { id = token.image; } <PCOMA>
+
+    {
+        return new Definicion(id);
+    }
+}
+
+Asignacion asignacion() :
+{
+    String id;
+    Expresion exp;
+}
+{
+    <ID> { id = token.image; } <EQ> exp = exp() <PCOMA>
+    {
+        return new Asignacion(id, exp);
+    }
+}
+
+
+Imprimir imprimir() :
+{
+    Expresion exp;
+}
+{
+    <IMPRIMIR> <PARENI> exp = exp() <PAREND> <PCOMA>
+    {
+        return new Imprimir(exp);
+    }
+}
+
+
+Expresion exp():
+{
+    Expresion op1;
+    Expresion op2;
+    Expresion exp = null;
+}
+{
+    op1=factor()
+    (
+        <MAS> op2=factor() { exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.SUMA); }
+        |
+        <MENOS> op2=factor() { exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.RESTA); }
+    )*
+    {
+        if (exp == null) {
+            return op1;
+        } else {
+            return exp;
+        }
+    }
+}
+
+Expresion factor():
+{
+    Expresion op1;
+    Expresion op2;
+    Expresion exp = null;
+}
+{
+    op1=num()
+    (
+        <POR> op2=num() { exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.POR); }
+        |
+        <DIV> op2=num() { exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.DIV); }
+    )*
+    {
+        if (exp == null) {
+            return op1;
+        } else {
+            return exp;
+        }
+    }
+}
+
+Expresion num() :
+{}
+{
+     <NUM> {return new ExpNum(Integer.parseInt(token.image));}
+     |
+     <ID> { return new ExpId(token.image); }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
