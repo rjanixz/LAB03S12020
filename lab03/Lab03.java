@@ -30,12 +30,27 @@ public class Lab03 {
             return;
         }
 
-        // colector
+        // AST
         List<Instruccion> instrucciones = parser.instrucciones;
-
+        toDOT(instrucciones);
         instrucciones.forEach(Lab03::procesar);
     }
 
+    public static void toDOT(List<Instruccion> instrucciones) {
+        StringBuilder builder = new StringBuilder();
+        int cont = 1;
+        String root = "nodo" + cont;
+        builder.append("digraph lab5 {\n");
+        builder.append(root).append(" [label=\"Lab05\"];\n");
+
+        for (Instruccion instr : instrucciones) {
+            cont = instr.toDOT(builder, root, cont);
+        }
+        builder.append("}");
+
+        System.out.println(builder.toString());
+
+    }
 
     public static void procesar(Instruccion instr) {
 

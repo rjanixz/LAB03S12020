@@ -3,6 +3,7 @@ var y;
 var z;
 
 x = 40;
+imprimir(x);
 y = 21;
 
 z = x + y;
