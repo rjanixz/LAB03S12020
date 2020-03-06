@@ -1,0 +1,9 @@
+var x;
+var y;
+var z;
+
+x = 40;
+y = 21;
+
+z = x + y;
+imprimir(z);
