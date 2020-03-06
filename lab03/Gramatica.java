@@ -14,12 +14,18 @@ public class Gramatica implements GramaticaConstants {
 
 /** Fin Lexico */
   final public void start() throws ParseException {
+  Instruccion instr;
     label_1:
     while (true) {
-      instruccion();
+      instr = instruccion();
+                            instrucciones.add(instr);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case VAR:
       case IMPRIMIR:
+      case BREAK:
+      case CONTINUE:
+      case IF:
+      case WHILE:
       case ID:
         ;
         break;
@@ -31,7 +37,7 @@ public class Gramatica implements GramaticaConstants {
     jj_consume_token(0);
   }
 
-  final public void instruccion() throws ParseException {
+  final public Instruccion instruccion() throws ParseException {
   Instruccion instr;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case VAR:
@@ -43,12 +49,25 @@ public class Gramatica implements GramaticaConstants {
     case IMPRIMIR:
       instr = imprimir();
       break;
+    case BREAK:
+      instr = saltar();
+      break;
+    case CONTINUE:
+      instr = continuar();
+      break;
+    case IF:
+      instr = si();
+      break;
+    case WHILE:
+      instr = mientras();
+      break;
     default:
       jj_la1[1] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-        instrucciones.add(instr);
+        {if (true) return instr;}
+    throw new Error("Missing return statement in function");
   }
 
   final public Definicion definicion() throws ParseException {
@@ -84,12 +103,115 @@ public class Gramatica implements GramaticaConstants {
     throw new Error("Missing return statement in function");
   }
 
+  final public Break saltar() throws ParseException {
+    jj_consume_token(BREAK);
+    jj_consume_token(PCOMA);
+                      {if (true) return new Break();}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public Continue continuar() throws ParseException {
+    jj_consume_token(CONTINUE);
+    jj_consume_token(PCOMA);
+                         {if (true) return new Continue();}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public If si() throws ParseException {
+    ExpBoolean expBool;
+    Instruccion instr = null;
+    List<Instruccion> instruccionesIfTrue = new ArrayList<Instruccion>();
+    List<Instruccion> instruccionesIfFalse = new ArrayList<Instruccion>();
+    jj_consume_token(IF);
+    jj_consume_token(PARENI);
+    expBool = expbool();
+    jj_consume_token(PAREND);
+    jj_consume_token(LLAVEI);
+    label_2:
+    while (true) {
+      instr = instruccion();
+                                                                                instruccionesIfTrue.add(instr);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case VAR:
+      case IMPRIMIR:
+      case BREAK:
+      case CONTINUE:
+      case IF:
+      case WHILE:
+      case ID:
+        ;
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        break label_2;
+      }
+    }
+    jj_consume_token(LLAVED);
+    jj_consume_token(ELSE);
+    jj_consume_token(LLAVEI);
+    label_3:
+    while (true) {
+      instr = instruccion();
+                                            instruccionesIfFalse.add(instr);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case VAR:
+      case IMPRIMIR:
+      case BREAK:
+      case CONTINUE:
+      case IF:
+      case WHILE:
+      case ID:
+        ;
+        break;
+      default:
+        jj_la1[3] = jj_gen;
+        break label_3;
+      }
+    }
+    jj_consume_token(LLAVED);
+        {if (true) return new If(expBool, instruccionesIfTrue, instruccionesIfFalse);}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public While mientras() throws ParseException {
+    ExpBoolean expBool = null;
+    Instruccion instr = null;
+    List<Instruccion> instrucciones = new ArrayList<Instruccion>();
+    jj_consume_token(WHILE);
+    jj_consume_token(PARENI);
+    expBool = expbool();
+    jj_consume_token(PAREND);
+    jj_consume_token(LLAVEI);
+    label_4:
+    while (true) {
+      instr = instruccion();
+                                                                                   instrucciones.add(instr);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case VAR:
+      case IMPRIMIR:
+      case BREAK:
+      case CONTINUE:
+      case IF:
+      case WHILE:
+      case ID:
+        ;
+        break;
+      default:
+        jj_la1[4] = jj_gen;
+        break label_4;
+      }
+    }
+    jj_consume_token(LLAVED);
+        {if (true) return new While(expBool, instrucciones);}
+    throw new Error("Missing return statement in function");
+  }
+
   final public Expresion exp() throws ParseException {
     Expresion op1;
     Expresion op2;
     Expresion exp = null;
     op1 = factor();
-    label_2:
+    label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MAS:
@@ -97,8 +219,8 @@ public class Gramatica implements GramaticaConstants {
         ;
         break;
       default:
-        jj_la1[2] = jj_gen;
-        break label_2;
+        jj_la1[5] = jj_gen;
+        break label_5;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MAS:
@@ -112,7 +234,7 @@ public class Gramatica implements GramaticaConstants {
                                exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.RESTA);
         break;
       default:
-        jj_la1[3] = jj_gen;
+        jj_la1[6] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -130,7 +252,7 @@ public class Gramatica implements GramaticaConstants {
     Expresion op2;
     Expresion exp = null;
     op1 = num();
-    label_3:
+    label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case POR:
@@ -138,8 +260,8 @@ public class Gramatica implements GramaticaConstants {
         ;
         break;
       default:
-        jj_la1[4] = jj_gen;
-        break label_3;
+        jj_la1[7] = jj_gen;
+        break label_6;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case POR:
@@ -153,7 +275,7 @@ public class Gramatica implements GramaticaConstants {
                           exp = new ExpBinaria(op1, op2, ExpBinaria.Operador.DIV);
         break;
       default:
-        jj_la1[5] = jj_gen;
+        jj_la1[8] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -177,10 +299,35 @@ public class Gramatica implements GramaticaConstants {
             {if (true) return new ExpId(token.image);}
       break;
     default:
-      jj_la1[6] = jj_gen;
+      jj_la1[9] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public ExpBoolean expbool() throws ParseException {
+    Expresion op1;
+    Expresion op2;
+    ExpBoolean.Operador op = null;
+    op1 = exp();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case GT:
+      jj_consume_token(GT);
+      op2 = exp();
+                         op = ExpBoolean.Operador.GT;
+      break;
+    case LT:
+      jj_consume_token(LT);
+      op2 = exp();
+                         op = ExpBoolean.Operador.LT;
+      break;
+    default:
+      jj_la1[10] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+        {if (true) return new ExpBoolean(op1, op2, op);}
     throw new Error("Missing return statement in function");
   }
 
@@ -193,13 +340,13 @@ public class Gramatica implements GramaticaConstants {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[7];
+  final private int[] jj_la1 = new int[11];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1c0,0x1c0,0x3000,0x3000,0xc000,0xc000,0x120,};
+      jj_la1_0 = new int[] {0x37c0,0x37c0,0x37c0,0x37c0,0x37c0,0x180000,0x180000,0x600000,0x600000,0x2020,0x1800000,};
    }
 
   /** Constructor with InputStream. */
@@ -213,7 +360,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -227,7 +374,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -237,7 +384,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -247,7 +394,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -256,7 +403,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -265,7 +412,7 @@ public class Gramatica implements GramaticaConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -316,12 +463,12 @@ public class Gramatica implements GramaticaConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[17];
+    boolean[] la1tokens = new boolean[26];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 11; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -330,7 +477,7 @@ public class Gramatica implements GramaticaConstants {
         }
       }
     }
-    for (int i = 0; i < 17; i++) {
+    for (int i = 0; i < 26; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

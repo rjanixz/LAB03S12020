@@ -32,25 +32,34 @@ TOKEN : {
       <NUM: (   ["0"-"9"])+ >
     | <VAR: "var">
     | <IMPRIMIR: "imprimir">
+    | <BREAK: "break">
+    | <CONTINUE: "continue">
+    | <IF: "if">
+    | <ELSE: "else">
+    | <WHILE: "while">
     | <ID: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] | "_")* >
     | <PCOMA: ";">
     | <PARENI: "(">
     | <PAREND: ")">
+    | <LLAVEI: "{">
+    | <LLAVED: "}">
     | <MAS: "+">
     | <MENOS: "-">
     | <POR: "*">
     | <DIV: "/">
+    | <GT: ">">
+    | <LT: "<">
     | <EQ: "=">
 }
 /** Fin Lexico */
 
 void start() :
-{}
+{ Instruccion instr; }
 {
-    (instruccion())+ <EOF>
+    (instr = instruccion() {instrucciones.add(instr);} )+ <EOF>
 }
 
-void instruccion() :
+Instruccion instruccion() :
 { Instruccion instr; }
 {
     (
@@ -59,9 +68,17 @@ void instruccion() :
         instr = asignacion()
         |
         instr = imprimir()
+        |
+        instr = saltar()
+        |
+        instr = continuar()
+        |
+        instr = si()
+        |
+        instr = mientras()
     )
     {
-        instrucciones.add(instr);
+        return instr;
     }
 }
 
@@ -101,6 +118,45 @@ Imprimir imprimir() :
     }
 }
 
+Break saltar() :
+{ }
+{
+    <BREAK> <PCOMA> { return new Break();}
+}
+
+Continue continuar() :
+{ }
+{
+    <CONTINUE> <PCOMA> { return new Continue();}
+}
+
+If si() :
+{
+    ExpBoolean expBool;
+    Instruccion instr = null;
+    List<Instruccion> instruccionesIfTrue = new ArrayList<Instruccion>();
+    List<Instruccion> instruccionesIfFalse = new ArrayList<Instruccion>();
+}
+{
+    <IF> <PARENI> expBool = expbool() <PAREND> <LLAVEI> (instr = instruccion() {instruccionesIfTrue.add(instr);} )+  <LLAVED>
+    <ELSE> <LLAVEI> (instr = instruccion() {instruccionesIfFalse.add(instr);} )+ <LLAVED>
+    {
+        return new If(expBool, instruccionesIfTrue, instruccionesIfFalse);
+    }
+}
+
+While mientras() :
+{
+    ExpBoolean expBool = null;
+    Instruccion instr = null;
+    List<Instruccion> instrucciones = new ArrayList<Instruccion>();
+}
+{
+    <WHILE> <PARENI> expBool = expbool() <PAREND> <LLAVEI> (instr = instruccion() {instrucciones.add(instr);} )+  <LLAVED>
+    {
+        return new While(expBool, instrucciones);
+    }
+}
 
 Expresion exp():
 {
@@ -155,6 +211,23 @@ Expresion num() :
 }
 
 
+ExpBoolean expbool():
+{
+    Expresion op1;
+    Expresion op2;
+    ExpBoolean.Operador op = null;
+}
+{
+    op1=exp()
+    (
+        <GT> op2=exp() { op = ExpBoolean.Operador.GT; }
+        |
+        <LT> op2=exp() { op = ExpBoolean.Operador.LT; }
+    )
+    {
+        return new ExpBoolean(op1, op2, op);
+    }
+}
 
 
 

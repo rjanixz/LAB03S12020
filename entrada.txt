@@ -2,9 +2,32 @@ var x;
 var y;
 var z;
 
-x = 40;
-imprimir(x);
+x = 20;
 y = 21;
 
 z = x + y;
 imprimir(z);
+
+if ( x > y ) {
+    imprimir( x - y );
+} else {
+    imprimir( x + y );
+}
+
+
+var i;
+i= 0;
+
+while( i < 10 ) {
+    i = i + 1;
+    if ( i <  5 ) {
+        imprimir(i);
+        continue;
+        imprimir(100);
+    } else {
+        imprimir(i);
+        break;
+        imprimir(200);
+    }
+    imprimir(333);
+}

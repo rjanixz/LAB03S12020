@@ -1,13 +1,11 @@
 package lab03;
 
-import lab03.exp.ExpBinaria;
-import lab03.exp.ExpId;
-import lab03.exp.ExpNum;
-import lab03.exp.Expresion;
-import lab03.instr.Asignacion;
-import lab03.instr.Definicion;
-import lab03.instr.Imprimir;
-import lab03.instr.Instruccion;
+import lab03.core.Return;
+import lab03.core.ReturnBreak;
+import lab03.core.ReturnContinue;
+import lab03.core.ReturnVoid;
+import lab03.exp.*;
+import lab03.instr.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -33,7 +31,13 @@ public class Lab03 {
         // AST
         List<Instruccion> instrucciones = parser.instrucciones;
         toDOT(instrucciones);
-        instrucciones.forEach(Lab03::procesar);
+        Return resultado = procesar(instrucciones);
+
+        if (resultado instanceof ReturnVoid) {
+            System.out.println("TODO OK");
+        } else {
+            System.err.println("Sentencia no valida: " + resultado);
+        }
     }
 
     public static void toDOT(List<Instruccion> instrucciones) {
@@ -52,18 +56,74 @@ public class Lab03 {
 
     }
 
-    public static void procesar(Instruccion instr) {
+    public static Return procesar(List<Instruccion> instrucciones) {
 
-        if (instr instanceof Definicion) {
-            procesarDefinicion((Definicion)instr);
-        } else if (instr instanceof Asignacion) {
-            procesarAsignacion((Asignacion)instr);
-        } else if (instr instanceof Imprimir) {
-            procesarImprimir((Imprimir)instr);
+        Return resultado = new ReturnVoid();
+        for (Instruccion instr : instrucciones) {
+            if (instr instanceof Definicion) {
+                procesarDefinicion((Definicion) instr);
+            } else if (instr instanceof Asignacion) {
+                procesarAsignacion((Asignacion) instr);
+            } else if (instr instanceof Imprimir) {
+                procesarImprimir((Imprimir) instr);
+            } else if (instr instanceof Break) {
+                return procesarBreak((Break) instr);
+            } else if (instr instanceof Continue) {
+                return procesarContinue((Continue) instr);
+            } else if (instr instanceof If) {
+                Return resultadoIf = procesarIf((If) instr);
+
+                if (resultadoIf instanceof ReturnContinue
+                    || resultadoIf instanceof ReturnBreak) {
+                    return resultadoIf;
+                }
+            } else if (instr instanceof While) {
+                resultado = procesarWhile((While) instr);
+            }
+
+            else {
+                System.err.println("No debio entrar por aqui.");
+            }
+        }
+
+        return resultado;
+    }
+
+    public static Return procesarIf(If instrIf) {
+        boolean exp = procesarExpresionBoolean(instrIf.expBoolean);
+
+        if (exp) {
+            return procesar(instrIf.instruccionesIfTrue);
         } else {
-            System.err.println ("No debio entrar por aqui.");
+            return procesar(instrIf.instruccionesIfFalse);
         }
     }
+
+    public static Return procesarWhile(While instrWhile) {
+
+        while(procesarExpresionBoolean(instrWhile.expBoolean)) {
+            Return resultadoWhile = procesar(instrWhile.instrucciones);
+
+            if (resultadoWhile instanceof ReturnBreak) {
+                break;
+            } else if (resultadoWhile instanceof ReturnContinue) {
+                continue;
+            } else {
+                return resultadoWhile;
+            }
+        }
+        return new ReturnVoid();
+    }
+
+    public static ReturnBreak procesarBreak(Break instrBreak) {
+        return new ReturnBreak();
+    }
+
+    public static ReturnContinue procesarContinue(Continue instrContinue) {
+        return new ReturnContinue();
+    }
+
+
 
     public static void procesarDefinicion(Definicion definicion) {
         // TODO validar si la variable ya existe dar error
@@ -114,6 +174,18 @@ public class Lab03 {
 
     public static int procesarExpNum(ExpNum expNum) {
         return expNum.val;
+    }
+
+    public static boolean procesarExpresionBoolean(ExpBoolean expBool) {
+
+        int exp1 = procesarExpresion(expBool.exp1);
+        int exp2 = procesarExpresion(expBool.exp2);
+
+        switch(expBool.op) {
+            case GT: return exp1 > exp2;
+            case LT: return exp1 < exp2;
+            default: return false; // TODO validar errores
+        }
     }
 
 
