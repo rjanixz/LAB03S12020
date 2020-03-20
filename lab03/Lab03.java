@@ -1,10 +1,8 @@
 package lab03;
 
-import lab03.core.Return;
-import lab03.core.ReturnBreak;
-import lab03.core.ReturnContinue;
-import lab03.core.ReturnVoid;
+import lab03.core.*;
 import lab03.exp.*;
+import lab03.func.Funcion;
 import lab03.instr.*;
 
 import java.io.BufferedReader;
@@ -16,6 +14,7 @@ import java.util.Map;
 public class Lab03 {
 
     private static Map<String, Integer> TS = new HashMap<>();
+    private static Map<String, Funcion> FUNCIONES = new HashMap<>();
 
     public static void main(String[] args) {
 
@@ -26,6 +25,13 @@ public class Lab03 {
         } catch (Exception e) {
             e.printStackTrace();
             return;
+        }
+
+        // Funciones
+        FUNCIONES = parser.funciones;
+        System.out.println("Se encontraron " + FUNCIONES.size() + " funciones");
+        for(Funcion func : FUNCIONES.values()) {
+            System.out.println(func.toString());
         }
 
         // AST
@@ -70,7 +76,12 @@ public class Lab03 {
                 return procesarBreak((Break) instr);
             } else if (instr instanceof Continue) {
                 return procesarContinue((Continue) instr);
-            } else if (instr instanceof If) {
+            } else if (instr instanceof Retornar) {
+                return procesarRetornar((Retornar) instr);
+            } else if(instr instanceof LlamadaFuncion) {
+                resultado = procesarFuncion(((LlamadaFuncion) instr).expFuncion);
+            }
+            else if (instr instanceof If) {
                 Return resultadoIf = procesarIf((If) instr);
 
                 if (resultadoIf instanceof ReturnContinue
@@ -123,7 +134,10 @@ public class Lab03 {
         return new ReturnContinue();
     }
 
-
+    public static ReturnValor procesarRetornar(Retornar instRetorno) {
+        int valor = procesarExpresion(instRetorno.exp);
+        return new ReturnValor(valor);
+    }
 
     public static void procesarDefinicion(Definicion definicion) {
         // TODO validar si la variable ya existe dar error
@@ -149,7 +163,15 @@ public class Lab03 {
             return procesarExpId((ExpId) exp);
         } else if (exp instanceof ExpNum) {
             return procesarExpNum((ExpNum) exp);
-        } else {
+        } else if (exp instanceof ExpFuncion) {
+            Return resultado = procesarFuncion((ExpFuncion) exp);
+            if (resultado instanceof ReturnValor) {
+                return ((ReturnValor) resultado).valor;
+            } else {
+                return -1; // TODO error
+            }
+        }
+        else {
             System.err.println ("Error en expresion");
             return -1; // TODO validar errores
         }
@@ -186,6 +208,21 @@ public class Lab03 {
             case LT: return exp1 < exp2;
             default: return false; // TODO validar errores
         }
+    }
+
+    public static Return procesarFuncion(ExpFuncion expFunc) {
+
+        Funcion funcion = FUNCIONES.get(expFunc.id);
+        // TODO valid si la funcion existe
+
+        int cont = 0;
+        for(String param : funcion.params) {
+            int valor = procesarExpresion(expFunc.valores.get(cont));
+            TS.put(param, valor);
+            cont++;
+        }
+
+        return procesar(funcion.instrucciones);
     }
 
 

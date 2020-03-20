@@ -31,3 +31,38 @@ while( i < 10 ) {
     }
     imprimir(333);
 }
+
+var ZONA;
+var EXAMEN;
+var TOTAL;
+
+
+inicializar();
+%
+TOTAL = calcular_nota(ZONA, EXAMEN);
+imprimir(ZONA);
+imprimir(EXAMEN);
+imprimir(TOTAL);
+
+def calcular_nota(var pzona, var pexamen) {
+    return pzona + pexamen;
+}
+
+
+def inicializar() {
+    ZONA = 66;
+    EXAMEN = 33;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,14 +9,15 @@ package lab03;
 
 import lab03.instr.*;
 import lab03.exp.*;
+import lab03.func.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class Gramatica {
 
     List<Instruccion> instrucciones = new ArrayList();
+    Map<String, Funcion> funciones = new HashMap<String, Funcion>();
 }
 PARSER_END(Gramatica)
 
@@ -31,13 +32,16 @@ SKIP : {
 TOKEN : {
       <NUM: (   ["0"-"9"])+ >
     | <VAR: "var">
+    | <DEF: "def">
     | <IMPRIMIR: "imprimir">
     | <BREAK: "break">
     | <CONTINUE: "continue">
+     | <RETURN: "return">
     | <IF: "if">
     | <ELSE: "else">
     | <WHILE: "while">
     | <ID: ["a"-"z"] ( ["a"-"z"] | ["0"-"9"] | "_")* >
+    | <COMA: ",">
     | <PCOMA: ";">
     | <PARENI: "(">
     | <PAREND: ")">
@@ -54,17 +58,25 @@ TOKEN : {
 /** Fin Lexico */
 
 void start() :
-{ Instruccion instr; }
 {
-    (instr = instruccion() {instrucciones.add(instr);} )+ <EOF>
+    Instruccion instr;
+     Funcion func;
+}
+{
+    (
+            instr = instruccion() {instrucciones.add(instr);}
+            |
+            func = func() { funciones.put(func.id, func); }
+        )+ <EOF>
 }
 
 Instruccion instruccion() :
-{ Instruccion instr; }
+{ Instruccion instr; Expresion exp; }
 {
     (
         instr = definicion()
         |
+        LOOKAHEAD(2)
         instr = asignacion()
         |
         instr = imprimir()
@@ -73,9 +85,13 @@ Instruccion instruccion() :
         |
         instr = continuar()
         |
+        instr = retornar()
+        |
         instr = si()
         |
         instr = mientras()
+        |
+        exp = llamada_func() <PCOMA> { instr = new LlamadaFuncion((ExpFuncion)exp); }
     )
     {
         return instr;
@@ -88,7 +104,8 @@ Definicion definicion() :
 }
 {
     <VAR> <ID> { id = token.image; } <PCOMA>
-
+    |
+    error = error() {}
     {
         return new Definicion(id);
     }
@@ -129,6 +146,15 @@ Continue continuar() :
 {
     <CONTINUE> <PCOMA> { return new Continue();}
 }
+
+Retornar retornar() :
+{
+    Expresion exp;
+}
+{
+    <RETURN> exp = exp() <PCOMA> { return new Retornar(exp); }
+}
+
 
 If si() :
 {
@@ -203,11 +229,13 @@ Expresion factor():
 }
 
 Expresion num() :
-{}
+{
+    Expresion exp;
+}
 {
      <NUM> {return new ExpNum(Integer.parseInt(token.image));}
      |
-     <ID> { return new ExpId(token.image); }
+     exp = llamada_func() { return exp; }
 }
 
 
@@ -229,6 +257,67 @@ ExpBoolean expbool():
     }
 }
 
+Expresion llamada_func():
+{
+    String id;
+    List<Expresion> valores = null;
+}
+{
+    <ID> { id = token.image; }
+    (<PARENI> valores = valor_params() <PAREND>)*
+    {
+        if (valores == null) {
+            return new ExpId(id);
+        } else {
+            return new ExpFuncion(id, valores);
+        }
+    }
+}
+
+List<Expresion> valor_params():
+{
+    Expresion exp;
+    List<Expresion> valores = new ArrayList<Expresion>();
+}
+{
+    (   exp = exp() {valores.add(exp); }
+        (<COMA> exp = exp() {valores.add(exp); } )*
+    )?
+    {
+        return valores;
+    }
+}
+
+Funcion func():
+{
+    String id;
+    Instruccion instr;
+    List<Instruccion> instrucciones = new ArrayList<Instruccion>();
+    Set<String> params;
+}
+{
+    <DEF> <ID> { id = token.image; }
+    <PARENI> params = params() <PAREND>
+    <LLAVEI> (instr = instruccion() {instrucciones.add(instr);} )+ <LLAVED>
+    {
+        return new Funcion(id, params, instrucciones);
+    }
+}
+
+
+Set<String> params():
+{
+    Set<String> params = new HashSet<String>();
+}
+{
+    (
+        <VAR> <ID> {params.add(token.image); }
+        (<COMA> <VAR> <ID> {params.add(token.image); })*
+    )?
+    {
+        return params;
+    }
+}
 
 
 

@@ -15,43 +15,49 @@ public interface GramaticaConstants {
   /** RegularExpression Id. */
   int VAR = 6;
   /** RegularExpression Id. */
-  int IMPRIMIR = 7;
+  int DEF = 7;
   /** RegularExpression Id. */
-  int BREAK = 8;
+  int IMPRIMIR = 8;
   /** RegularExpression Id. */
-  int CONTINUE = 9;
+  int BREAK = 9;
   /** RegularExpression Id. */
-  int IF = 10;
+  int CONTINUE = 10;
   /** RegularExpression Id. */
-  int ELSE = 11;
+  int RETURN = 11;
   /** RegularExpression Id. */
-  int WHILE = 12;
+  int IF = 12;
   /** RegularExpression Id. */
-  int ID = 13;
+  int ELSE = 13;
   /** RegularExpression Id. */
-  int PCOMA = 14;
+  int WHILE = 14;
   /** RegularExpression Id. */
-  int PARENI = 15;
+  int ID = 15;
   /** RegularExpression Id. */
-  int PAREND = 16;
+  int COMA = 16;
   /** RegularExpression Id. */
-  int LLAVEI = 17;
+  int PCOMA = 17;
   /** RegularExpression Id. */
-  int LLAVED = 18;
+  int PARENI = 18;
   /** RegularExpression Id. */
-  int MAS = 19;
+  int PAREND = 19;
   /** RegularExpression Id. */
-  int MENOS = 20;
+  int LLAVEI = 20;
   /** RegularExpression Id. */
-  int POR = 21;
+  int LLAVED = 21;
   /** RegularExpression Id. */
-  int DIV = 22;
+  int MAS = 22;
   /** RegularExpression Id. */
-  int GT = 23;
+  int MENOS = 23;
   /** RegularExpression Id. */
-  int LT = 24;
+  int POR = 24;
   /** RegularExpression Id. */
-  int EQ = 25;
+  int DIV = 25;
+  /** RegularExpression Id. */
+  int GT = 26;
+  /** RegularExpression Id. */
+  int LT = 27;
+  /** RegularExpression Id. */
+  int EQ = 28;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -65,13 +71,16 @@ public interface GramaticaConstants {
     "\"\\n\"",
     "<NUM>",
     "\"var\"",
+    "\"def\"",
     "\"imprimir\"",
     "\"break\"",
     "\"continue\"",
+    "\"return\"",
     "\"if\"",
     "\"else\"",
     "\"while\"",
     "<ID>",
+    "\",\"",
     "\";\"",
     "\"(\"",
     "\")\"",
