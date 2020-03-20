@@ -38,7 +38,7 @@ var TOTAL;
 
 
 inicializar();
-%
+
 TOTAL = calcular_nota(ZONA, EXAMEN);
 imprimir(ZONA);
 imprimir(EXAMEN);

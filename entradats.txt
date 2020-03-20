@@ -1,0 +1,30 @@
+
+
+var x;
+var y;
+var j;
+
+x = 10;
+
+if (x > 0) {
+    var x;
+} else {
+    var x;
+}
+
+def sumar (var param1, var param2) {
+
+    y = 20;
+
+    var z;
+
+    if (parm1 > param2) {
+        var z;
+        while (x > 0) {
+            x = x- 1;
+            z = x;
+        }
+    } else {
+        var z;
+    }
+}

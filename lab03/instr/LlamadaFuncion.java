@@ -12,6 +12,6 @@ public class LlamadaFuncion extends Instruccion {
 
     @Override
     public int toDOT(StringBuilder builder, String parent, int cont) {
-        return 0;
+        return cont;
     }
 }

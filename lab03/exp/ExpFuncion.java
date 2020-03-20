@@ -14,6 +14,6 @@ public class ExpFuncion extends Expresion {
 
     @Override
     public int toDOT(StringBuilder builder, String parent, int cont) {
-        return 0;
+        return cont;
     }
 }
