@@ -12,17 +12,19 @@ public class Ambito {
 
     public Set<Elemento> elementos;
 
-    public int tamanio;
+    public int posFinal; // es el tamanio
 
     public int numParams;
 
-    public Ambito(String id, String rol, String padreId, int numParams) {
+    boolean esFuncion;
+
+    public Ambito(String id, String rol, String padreId, int numParams, boolean esFuncion) {
         this.id = id;
         this.rol = rol;
         this.padreId = padreId;
         this.numParams = numParams;
         this.elementos = new HashSet<>();
-        this.tamanio = 0;
+        this.esFuncion = esFuncion;
     }
 
     public void agregarElemento(Elemento elemento) throws Exception {
@@ -34,7 +36,6 @@ public class Ambito {
         }
 
         elementos.add(elemento);
-        tamanio++;
     }
 
     @Override
@@ -44,8 +45,8 @@ public class Ambito {
                 ", \"rol\":\"" + rol + "\"" +
                 ", \"padreId\":\"" + padreId + "\"" +
                 ", \"elementos\": [" + elementos.stream().map(e -> e.toString()).collect(Collectors.joining(",")) + "]" +
-                ", \"tamanio\":" + tamanio +
-                ", \"numParams\":" + numParams +
+                (esFuncion ? ", \"tamanio\":" + posFinal : "") +
+                (esFuncion ?", \"numParams\":" + numParams : "") +
                 '}';
     }
 }

@@ -1,0 +1,47 @@
+
+var global;
+global = 11;
+
+var x;
+x = 10;
+
+def main() {
+
+    if ( 1 < 2) {
+        global = 22;
+        var x;
+        x = 20;
+        imprimir(X);
+    } else {
+        var x;
+        x = 30;
+        imprimir(X);
+    }
+
+
+    test_ambitos();
+    imprimir(global);
+    imprimir(X);
+
+}
+
+
+def test_ambitos(var x) {
+
+    x = 40;
+    imprimir(x);
+    imprimir(global);
+    global = 44;
+
+    var i;
+    while(i < 3) {
+        x = 50;
+        var x;
+        x = 60;
+        imprimir(X);
+        imprimir(global);
+        global = 55;
+    }
+    imprimir (x);
+    imprimir (global);
+}
