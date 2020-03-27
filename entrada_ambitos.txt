@@ -3,12 +3,15 @@ var global;
 global = 11;
 
 var x;
-x = 10;
+x = global;
 
 def main() {
 
     var x;
     x = 15;
+
+    var y;
+    y = x;
 
     if ( 1 < 2) {
         global = 22;
@@ -34,7 +37,7 @@ def test_ambitos(var x) {
     x = 40;
     imprimir(x);
     imprimir(global);
-    
+
 
     var i;
     while(i < 3) {

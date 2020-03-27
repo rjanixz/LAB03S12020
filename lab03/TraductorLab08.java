@@ -96,7 +96,7 @@ public class TraductorLab08 {
                 BUILDER.append(tempPos).append(" = ").append(elemento.pos).append("; // posicion de la variable global: " + asingnacion.id).append("\n");
 
                 // calcular el valor
-                String tempValor = traducirExpresion(asingnacion.exp, ambito);
+                String tempValor = traducirExpresion(asingnacion.exp, ambito, null);
 
                 // asigno
                 BUILDER.append("Heap[").append(tempPos).append("] = ").append(tempValor).append("; // valor inicial\n");
@@ -170,7 +170,7 @@ public class TraductorLab08 {
                 BUILDER.append(tempPos).append(" = ").append(tempValThis).append(" + ").append(elemento.pos).append("; // posicion de la variable local: " + asingnacion.id).append("\n");
 
                 // calcular el valor
-                String tempValor = traducirExpresion(asingnacion.exp, ambito);
+                String tempValor = traducirExpresion(asingnacion.exp, ambito, tempValThis);
 
                 // asigno
                 BUILDER.append("Stack[").append(tempPos).append("] = ").append(tempValor).append("; // valor de asignacion\n");
@@ -184,11 +184,33 @@ public class TraductorLab08 {
     }
 
 
-    private static String traducirExpresion(Expresion expr, Ambito ambito) {
+    private static String traducirExpresion(Expresion expr, Ambito ambito, String tempThis) {
         if(expr instanceof ExpNum) {
             return  "" + ((ExpNum) expr).val;
         } else if (expr instanceof ExpId) {
-            return ""; // TODO
+            ExpId expId = (ExpId)expr;
+
+            Elemento elemento;
+            try {
+                elemento = ambito.obtenerElemento(expId.id);
+            } catch (Exception e) {
+                System.err.println("ERROR SEMANTICO: " + e.getMessage());
+                // TODO agregar a error semantico
+                return "ERROR";
+            }
+
+            String tempPos = siguienteTemporal();
+            String tempVal = siguienteTemporal();
+
+            // pregunto si es global
+            if (ambito.padreId == null) {
+                BUILDER.append(tempPos).append(" = ").append(elemento.pos).append("; // pos de var global ").append(elemento.id).append("\n");
+                BUILDER.append(tempVal).append(" = Heap[").append(tempPos).append("]; // valor de ").append(elemento.id).append("\n");
+            } else {
+                BUILDER.append(tempPos).append(" = ").append(tempThis).append(" + ").append(elemento.pos).append("; // pos de var local").append(elemento.id).append("\n");
+                BUILDER.append(tempVal).append(" = Stack[").append(tempPos).append("]; // valor de ").append(elemento.id).append("\n");
+            }
+            return tempVal;
         }
         else {
             // TODO
