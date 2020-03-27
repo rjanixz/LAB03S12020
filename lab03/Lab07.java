@@ -54,6 +54,8 @@ public class Lab07 {
                 .map(e -> e.toString())
                 .collect(Collectors.joining(","))  + "]");
 
+        // comienzo a traducir
+        TraductorLab08.traducir(instrucciones);
     }
 
     private static int siguientePOS() {

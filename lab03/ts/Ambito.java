@@ -1,6 +1,8 @@
 package lab03.ts;
 
+import javax.swing.text.html.Option;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,18 @@ public class Ambito {
 
         elementos.add(elemento);
     }
+
+    public Elemento obtenerElemento(String id) throws Exception {
+
+        Optional<Elemento> optionalElemento = elementos.stream().filter(e -> e.id.equalsIgnoreCase(id)).findFirst();
+
+        if(optionalElemento.isPresent()) {
+            return optionalElemento.get();
+        }
+        throw new Exception("Variable " + id + "No definida");
+
+    }
+
 
     @Override
     public String toString() {

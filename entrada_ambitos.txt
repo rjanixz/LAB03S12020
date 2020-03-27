@@ -7,6 +7,9 @@ x = 10;
 
 def main() {
 
+    var x;
+    x = 15;
+
     if ( 1 < 2) {
         global = 22;
         var x;
@@ -31,7 +34,7 @@ def test_ambitos(var x) {
     x = 40;
     imprimir(x);
     imprimir(global);
-    global = 44;
+    
 
     var i;
     while(i < 3) {
